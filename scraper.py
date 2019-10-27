@@ -3,6 +3,16 @@ from selenium.webdriver.common.keys import Keys
 import time
 import bs4 as bs
 import PySimpleGUI as sg
+import json
+import ssl
+import smtplib
+
+with open('config.json') as infile:
+    data = json.load(infile)
+    users = data['users'][0]
+    email = data['email']
+    password = data['pass']
+    port = data['port']
 
 
 browser = webdriver.Firefox()
@@ -54,5 +64,11 @@ for choice in choices:
 sg.Popup('You entered', deals_chosen)
 
 
+context = ssl.create_default_context()
 
+with smtplib.SMTP_SSL("smtp.gmail.com", port, context=context) as loggerserver:
+    loggerserver.login(email, password)
 
+    for user, phone in users.items():
+        loggerserver.sendmail(email, phone, deals_chosen)
+        time.sleep(1)
