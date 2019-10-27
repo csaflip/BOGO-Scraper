@@ -2,8 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 import time
 import bs4 as bs
-
-
+import PySimpleGUI as sg
 
 
 browser = webdriver.Firefox()
@@ -24,14 +23,36 @@ names = soup.findAll('span', {'class': 'title cursorPointer action-tracking-nav 
 prices = soup.findAll('p', {'class': "priceQualifier"})
 bogo_dict = {}
 
+bogo_str = ''
 for x in range(0, len(names)):
     bogo_dict[x] = names[x].text
-    print(bogo_dict[x] + " : " + str(x))
+    bogo_str += bogo_dict[x] + " : " + str(x) + "\n"
 
-print('\n Choose from list the deals you care about: ')
-choices = str(input())
+
+layout = [[sg.Output(size=(50, 40), key='-OUTPUT-')], [sg.Input(key='-IN-')],
+          [sg.Button('Next')], [sg.Exit()]]
+
+window = sg.Window('Window that stays open', layout).Finalize()
+window.Maximize()
+choices = ''
+while True:
+    event, values = window.Read()
+    print(event, values)
+    if event in (None, 'Next'):
+        window['-OUTPUT-'].Update(bogo_str)
+
+    if event in (None, 'Exit'):
+        choices = values['-IN-']
+        break
+
+        window.Close()
+
+deals_chosen = ''
 choices = choices.split(',')
 for choice in choices:
-    print(bogo_dict[int(choice)])
+    deals_chosen += bogo_dict[int(choice)] + "\n"
+sg.Popup('You entered', deals_chosen)
+
+
 
 
